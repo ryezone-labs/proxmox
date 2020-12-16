@@ -1,12 +1,12 @@
-Role Name
+ryezone_labs/proxmox
 =========
 
-A brief description of the role goes here.
+This role configures a Proxmox PVE host for my personal lab.
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+None.
 
 Role Variables
 --------------
@@ -16,7 +16,7 @@ A description of the settable variables for this role should go here, including 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+None.
 
 Example Playbook
 ----------------
@@ -30,9 +30,12 @@ Including an example of how to use your role (for instance, with variables passe
 License
 -------
 
-BSD
+GPL-2.0-or-later
 
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+Esten Rye
+- [LinkedIn](https://www.linkedin.com/in/estenrye/)
+- [GitHub: estenrye](https://github.com/estenrye/)
+- [GitHub: ryezone-labs](https://github.com/ryezone-labs)
