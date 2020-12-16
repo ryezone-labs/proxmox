@@ -1,0 +1,17 @@
+---
+# tasks file for proxmox
+- name: Install non-enterprise apt source
+  apt_repository:
+    filename: /etc/apt/sources.list
+    repo: deb http://download.proxmox.com/debian buster pve-no-subscription
+    state: present
+
+- name: Remove enterprise apt repository
+  apt_repository:
+    filename: /etc/apt/sources.list.d/pve-enterprise.list
+    repo: deb https://enterprise.proxmox.com/debian/pve buster pve-enterprise
+    state: absent
+
+- name: Upgrade the OS (apt-get dist-upgrade)
+  apt:
+    upgrade: dist
