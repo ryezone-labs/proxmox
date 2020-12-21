@@ -8,7 +8,7 @@
 
 - name: Remove enterprise apt repository
   ansible.builtin.replace:
-    filename: /etc/apt/sources.list.d/pve-enterprise.list
+    path: /etc/apt/sources.list.d/pve-enterprise.list
     regexp: deb https\://enterprise\.proxmox\.com/debian/pve buster pve-enterprise
     line: "#deb https://enterprise.proxmox.com/debian/pve buster pve-enterprise"
 
