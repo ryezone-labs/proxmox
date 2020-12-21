@@ -1,17 +1,20 @@
 ---
 # tasks file for proxmox
 - name: Install non-enterprise apt source
-  apt_repository:
-    filename: /etc/apt/sources.list
-    repo: deb http://download.proxmox.com/debian buster pve-no-subscription
+  ansible.builtin.lineinfile:
+    path: /etc/apt/sources.list.d/pve-enterprise.list
+    line: deb http://download.proxmox.com/debian buster pve-no-subscription
     state: present
 
 - name: Remove enterprise apt repository
-  apt_repository:
+  ansible.builtin.replace:
     filename: /etc/apt/sources.list.d/pve-enterprise.list
-    repo: deb https://enterprise.proxmox.com/debian/pve buster pve-enterprise
-    state: absent
+    regexp: deb https\://enterprise\.proxmox\.com/debian/pve buster pve-enterprise
+    line: "#deb https://enterprise.proxmox.com/debian/pve buster pve-enterprise"
 
 - name: Upgrade the OS (apt-get dist-upgrade)
   apt:
     upgrade: dist
+
+- name: Add Packer Role
+  ansible.builtin.command:
