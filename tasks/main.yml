@@ -1,5 +1,18 @@
 ---
 # tasks file for proxmox
+
+- name: Download local binaries
+  get_url:
+    checksum: "{{ item.checksum }}"
+    url: "{{ item.url }}"
+    dest: "{{ item.dest }}"
+    mode: "{{ item.mode }}"
+  loop:
+    - url: https://github.com/stedolan/jq/releases/download/jq-{{versions.jq.version}}/jq-linux64
+      checksum: "{{ versions.jq.checksum }}"
+      dest: "/usr/bin/jq"
+      mode: u+x
+
 - name: Install non-enterprise apt source
   ansible.builtin.lineinfile:
     path: /etc/apt/sources.list.d/pve-enterprise.list
@@ -16,15 +29,14 @@
   apt:
     upgrade: dist
 
-- name: Get List of PVE Roles in JSON format
-  command: pveum role list --output-format=json
-  register: pve_role_list
-
-- name: Add Packer PVE Role if it does not exist.
-  command: "pve role add {{item.name}} -privs \"{{item.privs | join(' ')}}\""
-  when: pve_role_list | community.general.json_query("{{role_query}}") == 0
-  vars:
-    role_query: "length([?roleid=='{{item.name}}'])"
+- name: Add PVE Roles
+  block:
+    - name: Get List of PVE Roles in JSON format
+      command: "pveum role list --output-format=json | jq 'map(select(.roleid == \"{{item.name}}\")) | length == 0'"
+      register: pve_role_does_not_exist
+    - name: Add Packer PVE Role if it does not exist.
+      command: "pve role add {{item.name}} -privs \"{{item.privs | join(' ')}}\""
+      when: pve_role_does_not_exist
   loop:
     - name: Packer
       privs:
