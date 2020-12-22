@@ -1,0 +1,7 @@
+---
+- name: Get List of PVE Roles in JSON format
+  command: "pveum role list --output-format=json | jq 'map(select(.roleid == \"{{item.name}}\")) | length == 0'"
+  register: pve_role_does_not_exist
+- name: Add Packer PVE Role if it does not exist.
+  command: "pve role add {{item.name}} -privs \"{{item.privs | join(' ')}}\""
+  when: pve_role_does_not_exist
