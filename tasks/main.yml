@@ -16,5 +16,29 @@
   apt:
     upgrade: dist
 
-- name: Add Packer Role
-  ansible.builtin.command:
+- name: Get List of PVE Roles in JSON format
+  command: pveum role list --output-format=json
+  register: pve_role_list
+
+- name: Add Packer PVE Role if it does not exist.
+  command: "pve role add {{item.name}} -privs \"{{item.privs | join(' ')}}\""
+  when: "{{ pve_role_list | community.general.json_query(role_query)}}"
+  vars:
+    role_query: "length([?roleid=='{{item.name}}'])==1"
+  loop:
+    - name: Packer
+      privs:
+        - VM.Config.Disk
+        - VM.Config.CPU
+        - VM.Config.Memory
+        - Datastore.AllocateSpace
+        - Sys.Modify
+        - VM.Config.Options
+        - VM.Allocate
+        - VM.Audit
+        - VM.Console
+        - VM.Config.CDROM
+        - VM.Config.Network
+        - VM.PowerMgmt
+        - VM.Config.HWType
+        - VM.Monitor
