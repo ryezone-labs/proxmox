@@ -22,7 +22,7 @@
 
 - name: Add Packer PVE Role if it does not exist.
   command: "pve role add {{item.name}} -privs \"{{item.privs | join(' ')}}\""
-  when: pve_role_list | community.general.json_query(role_query) == 0
+  when: pve_role_list | community.general.json_query("{{role_query}}") == 0
   vars:
     role_query: "length([?roleid=='{{item.name}}'])"
   loop:
