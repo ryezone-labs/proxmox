@@ -9,7 +9,7 @@
 - name: Remove enterprise apt repository
   ansible.builtin.replace:
     path: /etc/apt/sources.list.d/pve-enterprise.list
-    regexp: deb https\://enterprise\.proxmox\.com/debian/pve buster pve-enterprise
+    regexp: ^deb https\://enterprise\.proxmox\.com/debian/pve buster pve-enterprise$
     replace: "#deb https://enterprise.proxmox.com/debian/pve buster pve-enterprise"
 
 - name: Upgrade the OS (apt-get dist-upgrade)
@@ -22,9 +22,9 @@
 
 - name: Add Packer PVE Role if it does not exist.
   command: "pve role add {{item.name}} -privs \"{{item.privs | join(' ')}}\""
-  when: "{{ pve_role_list | community.general.json_query(role_query)}}"
+  when: pve_role_list | community.general.json_query(role_query) == 0
   vars:
-    role_query: "length([?roleid=='{{item.name}}'])==1"
+    role_query: "length([?roleid=='{{item.name}}'])"
   loop:
     - name: Packer
       privs:
