@@ -48,3 +48,9 @@
         - VM.PowerMgmt
         - VM.Config.HWType
         - VM.Monitor
+
+- name: Add PVE Users
+  include_tasks: add_user.yml
+  loop:
+    - name: packer_automation
+      realm: pve
