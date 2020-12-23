@@ -1,6 +1,6 @@
 ---
 - name: Get List of PVE Users in JSON Format
-  shell: pveum user list --output-format=json | jq 'map(select(.userid == \"{{item.name}}@{{item.realm}}\"))'"
+  shell: "pveum user list --output-format=json | jq 'map(select(.userid == \"{{item.name}}@{{item.realm}}\"))'"
   register: pve_user
 - name: Add User if it does not exist
   command:
