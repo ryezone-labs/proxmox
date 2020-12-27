@@ -4,3 +4,40 @@ versions:
   jq:
     version: 1.6
     checksum: "sha256:AF986793A515D500AB2D35F8D2AECD656E764504B789B66D7E1A0B727A124C44"
+
+pve_roles:
+  - name: Packer
+    privs:
+      - VM.Config.Disk
+      - VM.Config.CPU
+      - VM.Config.Memory
+      - Datastore.AllocateSpace
+      - Sys.Modify
+      - VM.Config.Options
+      - VM.Allocate
+      - VM.Audit
+      - VM.Console
+      - VM.Config.CDROM
+      - VM.Config.Network
+      - VM.PowerMgmt
+      - VM.Config.HWType
+      - VM.Monitor
+
+pve_users:
+  - userid: packer_automation
+    realm: pve
+    comment: this is a comment
+    email: esten.rye+proxomox_packer@ryezone.com
+    firstname: Packer
+    lastname: Automation
+    keys: x!oath
+
+pve_acls:
+  - path: /
+    roleid: Packer
+    type: user
+    ugid: packer_automation@pve
+  - path: /
+    roleid: Packer
+    type: group
+    ugid: ACL_Proxmox_Packer-ryezone.com
