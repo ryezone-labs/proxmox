@@ -134,42 +134,44 @@ def present(proxmox, user_object):
   
   if current_user_object['result']:
     HAS_CHANGED = False
-    for k in user_object.keys():
-      if k not in current_user_object['result']:
-        HAS_CHANGED = True
-        break
-      elif current_user_object['result'][k] != user_object[k]:
-        HAS_CHANGED = True
-        break
-    if HAS_CHANGED:
-      try:
-        proxmox_user = proxmox.access.users(userid)
-        proxmox_user.put(
-          comment=user_object['comment'],
-          email=user_object['email'],
-          enable=user_object['enable'],
-          firstname=user_object['firstname'],
-          groups=user_object['groups'],
-          keys=user_object['keys'],
-          lastname=user_object['lastname']
-        )
-        return {
-          'changed': True, 
-          'msg': 'updated Proxmox PVE User %s' % userid
-        }
-      except Exception as e:
-        return {
-          'failed': True,
-          'msg': 'API failure encountered.  %s' % str(e)
-        }
-    else:
+    try:
+      proxmox_user = proxmox.access.users(userid)
+      proxmox_user.put(
+        comment=user_object['comment'],
+        email=user_object['email'],
+        enable=user_object['enable'],
+        firstname=user_object['firstname'],
+        groups=user_object['groups'],
+        keys=user_object['keys'],
+        lastname=user_object['lastname']
+      )      
+    except Exception as e:
       return {
-        'changed': False,
-        'msg': 'Proxmox PVE User %s already exists.' % userid
+        'failed': True,
+        'msg': 'API failure encountered.  %s' % str(e)
       }
+    updated_user_object = get_user(proxmox, userid)
+    if updated_user_object['failed']:
+      return updated_user_object
+    
+    HAS_CHANGED = False
+    for key in updated_user_object['result'].keys():
+      if key == 'keys':
+        continue
+      elif current_user_object['result'][key] == updated_user_object['result'][key]:
+        continue
+      else:
+        HAS_CHANGED = True
+        break
+  
+    return {
+      'changed': HAS_CHANGED,
+      'msg': 'Proxmox PVE User %s already exists.' % userid
+    }
   else:
     try:
       proxmox.access.users.post(
+        userid=user_object['userid'],
         comment=user_object['comment'],
         email=user_object['email'],
         enable=user_object['enable'],
@@ -230,10 +232,9 @@ def main():
       enable=dict(type='bool', required=False, default=True),
       expire=dict(type='int', required=False, default=0),
       firstname=dict(type='str', required=False),
-      groups=dict(type='str', required=False),
+      groups=dict(type='list', default=[], required=False),
       keys=dict(type='str', required=False),
       lastname=dict(type='str', required=False),
-      password=dict(type='str', required=False, no_log=True)
     )
   )
 
@@ -257,7 +258,6 @@ def main():
     'groups': module.params['groups'],
     'keys': module.params['keys'],
     'lastname': module.params['lastname'],
-    'password': module.params['password']
   }
 
   auth_args = {'user': api_user}

@@ -1,38 +1,62 @@
 ---
 # tasks file for proxmox
 
-- name: Download local binaries
-  get_url:
-    checksum: "{{ item.checksum }}"
-    url: "{{ item.url }}"
-    dest: "{{ item.dest }}"
-    mode: "{{ item.mode }}"
-  loop:
-    - url: https://github.com/stedolan/jq/releases/download/jq-{{versions.jq.version}}/jq-linux64
-      checksum: "{{ versions.jq.checksum }}"
-      dest: "/usr/bin/jq"
-      mode: u+x
+# - name: Download local binaries
+#   get_url:
+#     checksum: "{{ item.checksum }}"
+#     url: "{{ item.url }}"
+#     dest: "{{ item.dest }}"
+#     mode: "{{ item.mode }}"
+#   loop:
+#     - url: https://github.com/stedolan/jq/releases/download/jq-{{versions.jq.version}}/jq-linux64
+#       checksum: "{{ versions.jq.checksum }}"
+#       dest: "/usr/bin/jq"
+#       mode: u+x
 
-- name: Install non-enterprise apt source
-  ansible.builtin.lineinfile:
-    path: /etc/apt/sources.list.d/pve-enterprise.list
-    line: deb http://download.proxmox.com/debian buster pve-no-subscription
-    state: present
+# - name: Install non-enterprise apt source
+#   ansible.builtin.lineinfile:
+#     path: /etc/apt/sources.list.d/pve-enterprise.list
+#     line: deb http://download.proxmox.com/debian buster pve-no-subscription
+#     state: present
 
-- name: Remove enterprise apt repository
-  ansible.builtin.replace:
-    path: /etc/apt/sources.list.d/pve-enterprise.list
-    regexp: ^deb https\://enterprise\.proxmox\.com/debian/pve buster pve-enterprise$
-    replace: "#deb https://enterprise.proxmox.com/debian/pve buster pve-enterprise"
+# - name: Remove enterprise apt repository
+#   ansible.builtin.replace:
+#     path: /etc/apt/sources.list.d/pve-enterprise.list
+#     regexp: ^deb https\://enterprise\.proxmox\.com/debian/pve buster pve-enterprise$
+#     replace: "#deb https://enterprise.proxmox.com/debian/pve buster pve-enterprise"
 
-- name: Upgrade the OS (apt-get dist-upgrade)
-  apt:
-    upgrade: dist
+# - name: Upgrade the OS (apt-get dist-upgrade)
+#   apt:
+#     upgrade: dist
 
-- name: Add PVE Roles
-  include_tasks: add_role.yml
-  loop: pve_roles
+# - name: Add PVE Roles
+#   include_tasks: add_role.yml
+#   loop: pve_roles
 
 - name: Add PVE Users
-  include_tasks: add_user.yml
-  loop: pve_users
+  proxmox_pve_user:
+    api_host: '{{pve_api_host}}'
+    api_password: '{{pve_api_password}}'
+    api_token_id: '{{pve_api_token_id}}'
+    api_token_secret: '{{pve_api_token_secret}}'
+    api_user: '{{pve_api_user}}'
+    userid: '{{item.userid}}'
+    comment: '{% if item.comment is defined %}{{ item.comment }}{% endif %}'
+    email: '{% if item.email is defined %}{{ item.email }}{% endif %}'
+    enable: '{% if item.enable is defined %}{{ item.enable | bool }}{% else %}{{ True | bool }}{% endif %}'
+    expire: '{% if item.expire is defined %}{{ item.expire | int }}{% else %}{{ 0 | int }}{% endif %}'
+    firstname: '{% if item.firstname is defined %}{{ item.firstname }}{% endif %}'
+    groups: '{% if item.groups is defined %}{{ item.groups }}{% endif %}'
+    keys: '{% if item.keys is defined %}{{ item.keys }}{% endif %}'
+    lastname: '{% if item.lastname is defined %}{{ item.lastname }}{% endif %}'
+  loop: '{{pve_users}}'
+
+- name: Remove PVE Users
+  proxmox_pve_user:
+    api_host: '{{pve_api_host}}'
+    api_password: '{{pve_api_password}}'
+    api_token_id: '{{pve_api_token_id}}'
+    api_token_secret: '{{pve_api_token_secret}}'
+    api_user: '{{pve_api_user}}'
+    userid: '{{item}}'
+  loop: '{{pve_removed_users}}'

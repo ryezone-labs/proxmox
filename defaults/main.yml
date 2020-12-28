@@ -24,20 +24,19 @@ pve_roles:
       - VM.Monitor
 
 pve_users:
-  - userid: packer_automation
-    realm: pve
-    comment: this is a comment
-    email: esten.rye+proxomox_packer@ryezone.com
-    firstname: Packer
-    lastname: Automation
-    keys: x!oath
+  - userid: packer_automation@pve
+
+pve_removed_users:
+   - proxmox_automation@pve
 
 pve_acls:
   - path: /
     roleid: Packer
     type: user
     ugid: packer_automation@pve
-  - path: /
-    roleid: Packer
-    type: group
-    ugid: ACL_Proxmox_Packer-ryezone.com
+
+pve_api_host: localhost
+pve_api_user: root@pam
+pve_api_password:
+pve_api_token_id:
+pve_api_token_secret:
