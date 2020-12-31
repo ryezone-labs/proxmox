@@ -29,9 +29,27 @@
 #   apt:
 #     upgrade: dist
 
-# - name: Add PVE Roles
-#   include_tasks: add_role.yml
-#   loop: pve_roles
+- name: Add PVE Roles
+  proxmox_pve_role:
+    api_host: '{{pve_api_host}}'
+    api_password: '{{pve_api_password}}'
+    api_token_id: '{{pve_api_token_id}}'
+    api_token_secret: '{{pve_api_token_secret}}'
+    api_user: '{{pve_api_user}}'
+    roleid: '{{item.roleid}}'
+    append: false
+    privs: '{% if item.privs is defined %}{{ item.privs }}{% endif %}'
+  loop: '{{ pve_roles }}'
+
+- name: Remove PVE Roles
+  proxmox_pve_role:
+    api_host: '{{pve_api_host}}'
+    api_password: '{{pve_api_password}}'
+    api_token_id: '{{pve_api_token_id}}'
+    api_token_secret: '{{pve_api_token_secret}}'
+    api_user: '{{pve_api_user}}'
+    roleid: '{{item}}'
+  loop: '{{ pve_removed_roles }}'
 
 - name: Add PVE Users
   proxmox_pve_user:

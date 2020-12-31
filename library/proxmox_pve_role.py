@@ -6,10 +6,10 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 DOCUMENTATION = '''
-module: proxmox_pve_user
-short_description: management of Proxmox PVE Users
+module: proxmox_pve_role
+short_description: management of Proxmox PVE Roles
 description:
-  - allows you to create, modify and delete Proxmox PVE Users
+  - allows you to create, modify and delete Proxmox PVE Roles
 options:
   api_host:
     description:
@@ -41,45 +41,20 @@ options:
       - the user to authenticate with.
       - required.
     type: str
-  userid:
+  roleid:
     description:
-      - the Proxmox VE userid to create, modify or delete.
+      - the Proxmox VE roleid to create, modify or delete.
       - required.
     type: str
-  firstname:
+  append:
     description:
-      - the Proxmox VE user's first name.
-      - optional, default: ''
-    type: str
-  lastname:
+      - when true, tells Proxmox VE API to append to the current value rather
+        than overwrite it.
+      - optional, default: false
+  privs:
     description:
-      - the Proxmox VE user's last name.
-      - optional, default: ''
-    type: str
-  email:
-    description:
-      - the Proxmox VE user's email address.
-      - optional, default: ''
-    type: str
-  comment:
-    description:
-      - a comment describing the Proxmox VE user.
-  enable:
-    description:
-      - enables or disables a Proxmox VE user.
-      - optional, default: true
-    type: bool
-    default: true
-  expire:
-    description:
-      - Account expiration date (seconds since epoch).
-      - '0' means no expiration date.
-      - optional, default: 0
-    type: int
-  keys:
-    description:
-      - Yubico Key Ids for two factor authentication.
-      - optional, default: ''
+      - list of Proxmox Privileges to grant to the role.
+      - optional, default: []
 author: Esten Rye
 '''
 
@@ -95,10 +70,10 @@ except ImportError:
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils._text import to_native
 
-def get_user(proxmox, userid):
-  users = []
+def get_role(proxmox, roleid):
+  roles = []
   try:
-    users = proxmox.access.users.get()
+    roles = proxmox.access.roles.get()
   except Exception as e:
     return {
       'failed': True,
@@ -106,50 +81,45 @@ def get_user(proxmox, userid):
       'result': None
     }
 
-  user = list(filter(lambda x: x['userid'] == userid, users))
-  if len(user) == 0:
+  role = list(filter(lambda x: x['roleid'] == roleid, roles))
+  if len(role) == 0:
     return {
       'failed': False,
       'result': None
     }
   return {
     'failed': False,
-    'result': user[0]
+    'result': role[0]
   }
 
-def present(proxmox, user_object):
-  userid = user_object['userid']
-  current_user_object = get_user(proxmox, userid)
-  if current_user_object['failed']:
-    return current_user_object
+def present(proxmox, role_object):
+  roleid = role_object['roleid']
+  current_role_object = get_role(proxmox, roleid)
+  if current_role_object['failed']:
+    return current_role_object
   
-  if current_user_object['result']:
+  if current_role_object['result']:
     HAS_CHANGED = False
     try:
-      proxmox_user = proxmox.access.users(userid)
-      proxmox_user.put(
-        comment=user_object['comment'],
-        email=user_object['email'],
-        enable=user_object['enable'],
-        firstname=user_object['firstname'],
-        groups=user_object['groups'],
-        keys=user_object['keys'],
-        lastname=user_object['lastname']
+      proxmox_role = proxmox.access.roles(roleid)
+      proxmox_role.put(
+        append=role_object['append'],
+        privs=role_object['privs']
       )      
     except Exception as e:
       return {
         'failed': True,
         'msg': 'API failure encountered.  %s' % str(e)
       }
-    updated_user_object = get_user(proxmox, userid)
-    if updated_user_object['failed']:
-      return updated_user_object
+    updated_role_object = get_role(proxmox, roleid)
+    if updated_role_object['failed']:
+      return updated_role_object
     
     HAS_CHANGED = False
-    for key in updated_user_object['result'].keys():
+    for key in updated_role_object['result'].keys():
       if key == 'keys':
         continue
-      elif current_user_object['result'][key] == updated_user_object['result'][key]:
+      elif current_role_object['result'][key] == updated_role_object['result'][key]:
         continue
       else:
         HAS_CHANGED = True
@@ -157,24 +127,17 @@ def present(proxmox, user_object):
   
     return {
       'changed': HAS_CHANGED,
-      'msg': 'Proxmox PVE User %s already exists.' % userid
+      'msg': 'Proxmox PVE Role %s already exists.' % roleid
     }
   else:
     try:
-      proxmox.access.users.post(
-        userid=user_object['userid'],
-        comment=user_object['comment'],
-        email=user_object['email'],
-        enable=user_object['enable'],
-        expire=user_object['expire'],
-        firstname=user_object['firstname'],
-        groups=user_object['groups'],
-        keys=user_object['keys'],
-        lastname=user_object['lastname']
+      proxmox.access.roles.post(
+        roleid=role_object['roleid'],
+        privs=role_object['privs']
       )
       return {
         'changed': True, 
-        'msg': 'created Proxmox PVE User %s' % userid
+        'msg': 'created Proxmox PVE Role %s' % roleid
       }
     except Exception as e:
       return {
@@ -182,19 +145,19 @@ def present(proxmox, user_object):
         'msg': 'API failure encountered.  %s' % str(e)
       }
 
-def absent(proxmox, user_object):
-  userid = user_object['userid']
-  current_user_object = get_user(proxmox, userid)
-  if current_user_object['failed']:
-    return current_user_object
+def absent(proxmox, role_object):
+  roleid = role_object['roleid']
+  current_role_object = get_role(proxmox, roleid)
+  if current_role_object['failed']:
+    return current_role_object
 
-  if current_user_object['result']:
+  if current_role_object['result']:
     try:
-      proxmox_user = proxmox.access.users(userid)
-      proxmox_user.delete()
+      proxmox_role = proxmox.access.roles(roleid)
+      proxmox_role.delete()
       return {
         'changed': True, 
-        'msg': 'deleted Proxmox PVE User %s' % userid
+        'msg': 'deleted Proxmox PVE User %s' % roleid
       }
     except Exception as e:
       return {
@@ -204,7 +167,7 @@ def absent(proxmox, user_object):
   else:
     return {
       'changed': False,
-      'msg': 'Proxmox PVE User %s does not exist.' % userid
+      'msg': 'Proxmox PVE User %s does not exist.' % roleid
     }
 
 def main():
@@ -217,15 +180,9 @@ def main():
       api_token_secret=dict(type='str', no_log=True),
       api_user=dict(type='str', required=True),
       api_validate_certs=dict(type='bool', default=True),
-      userid=dict(type='str', required=True),
-      comment=dict(type='str', required=False),
-      email=dict(type='str', required=False),
-      enable=dict(type='bool', required=False, default=True),
-      expire=dict(type='int', required=False, default=0),
-      firstname=dict(type='str', required=False),
-      groups=dict(type='list', default=[], required=False),
-      keys=dict(type='str', required=False),
-      lastname=dict(type='str', required=False),
+      roleid=dict(type='str', required=True),
+      append=dict(type='bool', default=False, required=False),
+      privs=dict(type='list', default=[], required=False),
     )
   )
 
@@ -239,16 +196,12 @@ def main():
   api_token_secret = module.params['api_token_secret']
   api_user = module.params['api_user']
   api_validate_certs = module.params['api_validate_certs']
-  user_object = {
-    'userid': module.params['userid'],
-    'comment': module.params['comment'],
-    'email': module.params['email'],
-    'enable': 1 if module.params['enable'] else 0,
-    'expire': module.params['expire'],
-    'firstname': module.params['firstname'],
-    'groups': module.params['groups'],
-    'keys': module.params['keys'],
-    'lastname': module.params['lastname'],
+  privs = list(module.params['privs'])
+  append = 1 if module.params['append'] else 0
+  role_object = {
+    'roleid': module.params['roleid'],
+    'append': append,
+    'privs': ",".join(privs),
   }
 
   auth_args = {'user': api_user}
@@ -279,9 +232,9 @@ def main():
   
   result = {}
   if state == 'present':
-    result = present(proxmox, user_object)
+    result = present(proxmox, role_object)
   elif state == 'absent':
-    result = absent(proxmox, user_object)
+    result = absent(proxmox, role_object)
   else:
     module.fail_json(msg='invalid state `%s`.  Expected `present` or `absent`.' % state)
     return
