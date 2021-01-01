@@ -34,10 +34,16 @@ pve_removed_users:
    - proxmox_automation@pve
 
 pve_acls:
+  - path: / 
+    roleid: Packer
+    users:
+      - packer_automation@pve
+
+pve_removed_acls:
   - path: /
     roleid: Packer
-    type: user
-    ugid: packer_automation@pve
+    users:
+      - python@pve
 
 pve_api_host: localhost
 pve_api_user: root@pam
