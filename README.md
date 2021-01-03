@@ -25,13 +25,13 @@ Role Variables
 
 | variable | required | type | description | default |
 | --- | --- | --- | --- | --- |
-| `pve_roles` | yes | list[role_object] | List of Proxmox VE roles to create. | null |
-| `pve_removed_roles` | yes | list[string] | List of Proxmox VE roles to remove. | null |
-| `pve_users` | yes | list[user_object] | List of Proxmox VE users to create. | null |
-| `pve_removed_users` | yes | list[string] | List of Proxmox VE users to remove. | null |
-| `pve_acls` | yes | list[acl_object] | List of Proxmox VE ACLs to set. | null |
-| `pve_removed_acls` | yes | list[acl_object] | List of Proxmox VE ACLs to set. | null |
-| `pve_user_passwords` | yes | list[password_object] | List of Proxmox VE User Passwords to set. | null |
+| `pve_roles` | yes | list[role_object] | List of Proxmox VE roles to create. | `[]` |
+| `pve_removed_roles` | yes | list[string] | List of Proxmox VE roles to remove. | `[]` |
+| `pve_users` | yes | list[user_object] | List of Proxmox VE users to create. | `[]` |
+| `pve_removed_users` | yes | list[string] | List of Proxmox VE users to remove. | `[]` |
+| `pve_acls` | yes | list[acl_object] | List of Proxmox VE ACLs to set. | `[]` |
+| `pve_removed_acls` | yes | list[acl_object] | List of Proxmox VE ACLs to set. | `[]` |
+| `pve_user_passwords` | yes | list[password_object] | List of Proxmox VE User Passwords to set. | `[]` |
 
 ## role_object
 
