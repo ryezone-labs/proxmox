@@ -31,34 +31,34 @@
 
 - name: Add PVE Roles
   proxmox_pve_role:
-    api_host: '{{pve_api_host}}'
-    api_password: '{{pve_api_password}}'
-    api_token_id: '{{pve_api_token_id}}'
-    api_token_secret: '{{pve_api_token_secret}}'
-    api_user: '{{pve_api_user}}'
-    roleid: '{{item.roleid}}'
+    api_host: '{{ pve_api_host }}'
+    api_password: '{{ pve_api_password }}'
+    api_token_id: '{{ pve_api_token_id }}'
+    api_token_secret: '{{ pve_api_token_secret }}'
+    api_user: '{{ pve_api_user }}'
+    roleid: '{{ item.roleid }}'
     append: '{% if item.append is defined %}{{ item.append }}{% else %}false{% endif %}'
     privs: '{% if item.privs is defined %}{{ item.privs }}{% endif %}'
   loop: '{{ pve_roles }}'
 
 - name: Remove PVE Roles
   proxmox_pve_role:
-    api_host: '{{pve_api_host}}'
-    api_password: '{{pve_api_password}}'
-    api_token_id: '{{pve_api_token_id}}'
-    api_token_secret: '{{pve_api_token_secret}}'
-    api_user: '{{pve_api_user}}'
-    roleid: '{{item}}'
+    api_host: '{{ pve_api_host }}'
+    api_password: '{{ pve_api_password }}'
+    api_token_id: '{{ pve_api_token_id }}'
+    api_token_secret: '{{ pve_api_token_secret }}'
+    api_user: '{{ pve_api_user }}'
+    roleid: '{{ item }}'
   loop: '{{ pve_removed_roles }}'
 
 - name: Add PVE Users
   proxmox_pve_user:
-    api_host: '{{pve_api_host}}'
-    api_password: '{{pve_api_password}}'
-    api_token_id: '{{pve_api_token_id}}'
-    api_token_secret: '{{pve_api_token_secret}}'
-    api_user: '{{pve_api_user}}'
-    userid: '{{item.userid}}'
+    api_host: '{{ pve_api_host }}'
+    api_password: '{{ pve_api_password }}'
+    api_token_id: '{{ pve_api_token_id }}'
+    api_token_secret: '{{ pve_api_token_secret }}'
+    api_user: '{{ pve_api_user }}'
+    userid: '{{ item.userid }}'
     comment: '{% if item.comment is defined %}{{ item.comment }}{% endif %}'
     email: '{% if item.email is defined %}{{ item.email }}{% endif %}'
     enable: '{% if item.enable is defined %}{{ item.enable | bool }}{% else %}{{ True | bool }}{% endif %}'
@@ -67,27 +67,27 @@
     groups: '{% if item.groups is defined %}{{ item.groups }}{% endif %}'
     keys: '{% if item.keys is defined %}{{ item.keys }}{% endif %}'
     lastname: '{% if item.lastname is defined %}{{ item.lastname }}{% endif %}'
-  loop: '{{pve_users}}'
+  loop: '{{ pve_users }}'
 
 - name: Remove PVE Users
   proxmox_pve_user:
-    api_host: '{{pve_api_host}}'
-    api_password: '{{pve_api_password}}'
-    api_token_id: '{{pve_api_token_id}}'
-    api_token_secret: '{{pve_api_token_secret}}'
-    api_user: '{{pve_api_user}}'
-    userid: '{{item}}'
-  loop: '{{pve_removed_users}}'
+    api_host: '{{ pve_api_host }}'
+    api_password: '{{ pve_api_password }}'
+    api_token_id: '{{ pve_api_token_id }}'
+    api_token_secret: '{{ pve_api_token_secret }}'
+    api_user: '{{ pve_api_user }}'
+    userid: '{{ item }}'
+  loop: '{{ pve_removed_users }}'
 
 - name: add PVE ACLs
   proxmox_pve_acl:
-    api_host: '{{pve_api_host}}'
-    api_password: '{{pve_api_password}}'
-    api_token_id: '{{pve_api_token_id}}'
-    api_token_secret: '{{pve_api_token_secret}}'
-    api_user: '{{pve_api_user}}'
-    path: "{{item.path}}"
-    roleid: "{{item.roleid}}"
+    api_host: '{{ pve_api_host }}'
+    api_password: '{{ pve_api_password }}'
+    api_token_id: '{{ pve_api_token_id }}'
+    api_token_secret: '{{ pve_api_token_secret }}'
+    api_user: '{{ pve_api_user }}'
+    path: "{{ item.path }}"
+    roleid: "{{ item.roleid }}"
     users: "{% if item.users is defined %}{{ item.users }}{% endif %}"
     groups: "{% if item.groups is defined %}{{ item.groups }}{% endif %}"
     tokens: "{% if item.tokens is defined %}{{ item.tokens }}{% endif %}"
@@ -97,13 +97,13 @@
 
 - name: remove PVE ACLs
   proxmox_pve_acl:
-    api_host: '{{pve_api_host}}'
-    api_password: '{{pve_api_password}}'
-    api_token_id: '{{pve_api_token_id}}'
-    api_token_secret: '{{pve_api_token_secret}}'
-    api_user: '{{pve_api_user}}'
-    path: "{{item.path}}"
-    roleid: "{{item.roleid}}"
+    api_host: '{{ pve_api_host }}'
+    api_password: '{{ pve_api_password }}'
+    api_token_id: '{{ pve_api_token_id }}'
+    api_token_secret: '{{ pve_api_token_secret }}'
+    api_user: '{{ pve_api_user }}'
+    path: "{{ item.path }}"
+    roleid: "{{ item.roleid }}"
     users: "{% if item.users is defined %}{{ item.users }}{% endif %}"
     groups: "{% if item.groups is defined %}{{ item.groups }}{% endif %}"
     tokens: "{% if item.tokens is defined %}{{ item.tokens }}{% endif %}"
@@ -113,11 +113,11 @@
 
 - name: set PVE User Passwords
   proxmox_pve_user_password:
-    api_host: '{{pve_api_host}}'
-    api_password: '{{pve_api_password}}'
-    api_token_id: '{{pve_api_token_id}}'
-    api_token_secret: '{{pve_api_token_secret}}'
-    api_user: '{{pve_api_user}}'
-    userid: "{{item.userid}}"
-    password: "{{item.password}}"
-  loop: "{{pve_user_passwords}}"
+    api_host: '{{ pve_api_host }}'
+    api_password: '{{ pve_api_password }}'
+    api_token_id: '{{ pve_api_token_id }}'
+    api_token_secret: '{{ pve_api_token_secret }}'
+    api_user: '{{ pve_api_user }}'
+    userid: "{{ item.userid }}"
+    password: "{{ item.password }}"
+  loop: "{{ pve_user_passwords }}"

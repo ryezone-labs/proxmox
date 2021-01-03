@@ -14,7 +14,7 @@ Role Variables
 ## API Connection Variables
 
 | variable | required | type | description | environment |
-| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- |
 | `pve_api_host` | yes | string | Fully qualified hostname of the Proxmox VE Server. | |
 | `pve_api_user` | yes | string | Proxmox VE User to use for API authentication. | |
 | `pve_api_password` | no | string | Proxmox VE User password to use for API authentication.  Not required when `pve_api_token_id` and `pve_api_token_secret` are provided. | PROXMOX_PASSWORD |
