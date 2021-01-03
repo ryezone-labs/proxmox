@@ -37,7 +37,7 @@
     api_token_secret: '{{pve_api_token_secret}}'
     api_user: '{{pve_api_user}}'
     roleid: '{{item.roleid}}'
-    append: false
+    append: '{% if item.append is defined %}{{ item.append }}{% else %}false{% endif %}'
     privs: '{% if item.privs is defined %}{{ item.privs }}{% endif %}'
   loop: '{{ pve_roles }}'
 
@@ -110,3 +110,14 @@
     propagate: "{% if item.propagate is defined %}{{ item.propagate }}{% else %}true{% endif %}"
     state: absent
   loop: "{{ pve_removed_acls }}"
+
+- name: set PVE User Passwords
+  proxmox_pve_user_password:
+    api_host: '{{pve_api_host}}'
+    api_password: '{{pve_api_password}}'
+    api_token_id: '{{pve_api_token_id}}'
+    api_token_secret: '{{pve_api_token_secret}}'
+    api_user: '{{pve_api_user}}'
+    userid: "{{item.userid}}"
+    password: "{{item.password}}"
+  loop: "{{pve_user_passwords}}"
